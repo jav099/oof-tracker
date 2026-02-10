@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OOF Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <h1>OOF Tracker</h1>
+          <p class="subtitle">Track hours off and total days used for <span id="year-label">2026</span></p>
+        </div>
+      </header>
+
+      <section class="controls" aria-label="Data controls">
+        <button id="export-btn" type="button">Export JSON</button>
+        <label for="import-input" class="import-label">Import JSON</label>
+        <input id="import-input" type="file" accept="application/json" />
+        <label for="theme-mode" class="theme-label">Theme</label>
+        <select id="theme-mode" aria-label="Theme mode">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+        <span id="status" role="status" aria-live="polite"></span>
+      </section>
+
+      <section class="summary-sticky">
+        <section class="summary-card" aria-label="Usage summary">
+          <p class="summary-title">Total Vacation Days Used</p>
+          <p class="summary-days" id="total-days">0</p>
+          <p class="summary-hours"><span id="total-hours">0</span> hours logged</p>
+        </section>
+      </section>
+
+      <section id="calendar" class="calendar" aria-label="Year calendar"></section>
+    </main>
+
+    <template id="month-template">
+      <article class="month">
+        <h2 class="month-title"></h2>
+        <div class="weekday-header" aria-hidden="true">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div class="month-grid"></div>
+      </article>
+    </template>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
