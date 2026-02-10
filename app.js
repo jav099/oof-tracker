@@ -19,6 +19,7 @@
   const totalHoursEl = document.getElementById("total-hours");
   const yearLabelEl = document.getElementById("year-label");
   const exportBtn = document.getElementById("export-btn");
+  const clearBtn = document.getElementById("clear-btn");
   const importInput = document.getElementById("import-input");
   const themeModeSelect = document.getElementById("theme-mode");
   const statusEl = document.getElementById("status");
@@ -39,6 +40,7 @@
 
   function bindControls() {
     exportBtn.addEventListener("click", exportJson);
+    clearBtn.addEventListener("click", clearCalendar);
     importInput.addEventListener("change", onImportFile);
     themeModeSelect.addEventListener("change", onThemeModeChange);
     prefersDarkMq.addEventListener("change", onSystemThemeChange);
@@ -86,7 +88,7 @@
       const input = document.createElement("input");
       input.className = "day-input";
       input.type = "number";
-      input.min = "1";
+      input.min = "0";
       input.max = "8";
       input.step = "1";
       input.placeholder = editable ? "" : "-";
@@ -99,9 +101,16 @@
       if (editable) {
         input.addEventListener("input", () => {
           handleEntryChange(iso, input.value);
-          const nextValue = state.entries[iso];
-          input.value = typeof nextValue === "number" ? String(nextValue) : "";
           applyCellTone(cell, state.entries[iso]);
+        });
+        input.addEventListener("blur", () => {
+          const value = input.value.trim();
+          if (value === "0") {
+            input.value = "";
+          } else if (value !== "") {
+            const nextValue = state.entries[iso];
+            input.value = typeof nextValue === "number" ? String(nextValue) : "";
+          }
         });
       } else {
         input.disabled = true;
@@ -132,6 +141,14 @@
       return;
     }
 
+    if (num === 0) {
+      delete state.entries[iso];
+      persistEntries();
+      refreshTotals();
+      setStatus("Saved.");
+      return;
+    }
+
     const clamped = Math.max(1, Math.min(8, num));
     state.entries[iso] = clamped;
     persistEntries();
@@ -150,6 +167,8 @@
   function applyCellTone(cell, value) {
     cell.style.backgroundColor = "";
     cell.style.color = "";
+    cell.style.removeProperty("--day-number");
+    cell.style.removeProperty("--input-color");
 
     if (typeof value !== "number") {
       return;
@@ -159,9 +178,12 @@
     const lightness = 97 - t * 38;
     const saturation = 68;
     cell.style.backgroundColor = `hsl(22 ${saturation}% ${lightness}%)`;
+    cell.style.setProperty("--day-number", "#1f5f53");
+    cell.style.setProperty("--input-color", "#1f2937");
 
     if (value >= 7) {
-      cell.style.color = "#ffffff";
+      cell.style.setProperty("--day-number", "#ffffff");
+      cell.style.setProperty("--input-color", "#ffffff");
     }
   }
 
@@ -215,6 +237,19 @@
     setStatus("Export complete.");
   }
 
+  function clearCalendar() {
+    const shouldClear = window.confirm(`Clear all PTO entries for ${YEAR}?`);
+    if (!shouldClear) {
+      return;
+    }
+
+    state.entries = {};
+    persistEntries();
+    renderYear();
+    refreshTotals();
+    setStatus("All entries cleared.");
+  }
+
   async function onImportFile(event) {
     const file = event.target.files?.[0];
     if (!file) {
@@ -264,9 +299,10 @@
       if (!isValidIsoDate(date, YEAR)) {
         throw new Error(`Import failed: invalid date ${date}.`);
       }
-      if (!Number.isInteger(value) || value < 1 || value > 8) {
+      if (!Number.isInteger(value) || value < 0 || value > 8) {
         throw new Error(`Import failed: invalid hours for ${date}.`);
       }
+      if (value === 0) continue;
       if (!isEditableIso(date)) {
         throw new Error(`Import failed: ${date} is not an editable workday.`);
       }

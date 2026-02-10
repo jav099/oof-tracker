@@ -6,6 +6,7 @@
   --brand: #3f8c80;
   --brand-soft: #5ba89b;
   --hours-accent: #df9262;
+  --day-number-base: #2f766b;
   --text: #1f2937;
   --muted: #6b7280;
   --line: #cfdad7;
@@ -21,6 +22,7 @@
   --brand: #2f766b;
   --brand-soft: #256d63;
   --hours-accent: #d98754;
+  --day-number-base: #7ec8b8;
   --text: #e5e7eb;
   --muted: #9ca3af;
   --line: #374151;
@@ -211,23 +213,25 @@ button:hover,
   font-weight: 700;
   font-size: 1.3rem;
   line-height: 1;
+  color: var(--day-number, var(--day-number-base));
 }
 
 .day-input {
   margin-top: auto;
   width: 100%;
-  border: 1px solid transparent;
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
   background: transparent;
   font-weight: 700;
   font-size: 1rem;
   text-align: center;
-  padding: 0;
+  padding: 1px 0;
+  border-radius: 4px;
+  color: var(--input-color, var(--text));
 }
 
 .day-input:focus-visible {
   outline: none;
   border-color: var(--brand);
-  border-radius: 4px;
   background: rgba(255, 255, 255, 0.7);
 }
 
@@ -248,6 +252,12 @@ button:hover,
 .day-cell.disabled .day-input,
 .day-cell.out-of-month .day-input {
   pointer-events: none;
+  border-color: transparent;
+}
+
+.day-cell.disabled .day-number,
+.day-cell.out-of-month .day-number {
+  color: var(--disabled-text);
 }
 
 @media (max-width: 1100px) {
@@ -269,4 +279,10 @@ button:hover,
   .summary-card {
     width: 100%;
   }
+}
+
+.calendar-note {
+  margin: 4px 0 10px;
+  color: var(--muted);
+  font-size: 0.95rem;
 }
